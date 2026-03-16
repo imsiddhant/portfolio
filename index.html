@@ -240,30 +240,106 @@
       transform: rotate(45deg);
     }
 
-    /* ===== STAT BAR ===== */
+    /* ===== CAREER TIMELINE STRIP ===== */
     #stats {
       background: linear-gradient(90deg, var(--bg0), var(--bg2), var(--bg1), var(--bg0));
       border-top: 1px solid var(--gb); border-bottom: 1px solid var(--gb);
-      padding: 56px 48px;
+      padding: 48px 64px;
     }
-    .stats-inner {
-      max-width: 1000px; margin: 0 auto;
-      display: grid; grid-template-columns: repeat(4,1fr); gap: 0;
+    .timeline-strip {
+      max-width: 1200px; margin: 0 auto;
+      display: grid;
+      grid-template-columns: repeat(8, 1fr);
+      grid-template-rows: 1fr 32px 1fr;
+      position: relative;
     }
-    .stat {
-      text-align: center; padding: 0 24px; position: relative;
+    /* centre horizontal line across row 2 */
+    .timeline-strip::before {
+      content: '';
+      grid-column: 1 / -1; grid-row: 2;
+      align-self: center;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--gb) 5%, var(--gb) 95%, transparent);
     }
-    .stat + .stat::before {
-      content: ''; position: absolute; left: 0; top: 50%; transform: translateY(-50%);
-      height: 50%; width: 1px; background: var(--gb);
+    /* each node spans all 3 rows in its column, centred */
+    .tl-node {
+      grid-row: 1 / 4;
+      display: grid;
+      grid-template-rows: subgrid;
+      align-items: center; justify-items: center;
+      cursor: default; position: relative;
     }
-    .stat-n {
-      font-size: 54px; font-weight: 900; line-height: 1;
-      background: linear-gradient(135deg, var(--c1) 0%, var(--c3) 100%);
-      -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
-      margin-bottom: 6px;
+    /* odd = label top row, even = label bottom row */
+    .tl-node:nth-child(odd)  .tl-label { grid-row: 1; align-self: end;   padding-bottom: 10px; }
+    .tl-node:nth-child(even) .tl-label { grid-row: 3; align-self: start; padding-top: 10px; }
+    .tl-node:nth-child(odd)  .tl-dot   { grid-row: 2; }
+    .tl-node:nth-child(even) .tl-dot   { grid-row: 2; }
+    /* hide the unused row slot */
+    .tl-node:nth-child(odd)::after  { content: ''; grid-row: 3; }
+    .tl-node:nth-child(even)::before { content: ''; grid-row: 1; }
+    .tl-dot {
+      width: 11px; height: 11px; border-radius: 50%;
+      border: 2px solid var(--c1);
+      background: var(--bg0);
+      box-shadow: 0 0 0 3px rgba(14,165,233,.12), 0 0 10px rgba(14,165,233,.3);
+      transition: transform .25s ease, box-shadow .25s ease;
+      z-index: 2;
     }
-    .stat-l { font-size: 12px; color: var(--t3); letter-spacing: .1em; text-transform: uppercase; }
+    .tl-node:hover .tl-dot { transform: scale(1.6); box-shadow: 0 0 0 5px rgba(14,165,233,.2), 0 0 20px rgba(14,165,233,.5); }
+    .tl-dot.accent { border-color: var(--c2); box-shadow: 0 0 0 3px rgba(249,115,22,.12), 0 0 10px rgba(249,115,22,.3); }
+    .tl-node:hover .tl-dot.accent { box-shadow: 0 0 0 5px rgba(249,115,22,.2), 0 0 20px rgba(249,115,22,.5); }
+    .tl-dot.violet { border-color: var(--c3); box-shadow: 0 0 0 3px rgba(139,92,246,.12), 0 0 10px rgba(139,92,246,.3); }
+    .tl-node:hover .tl-dot.violet { box-shadow: 0 0 0 5px rgba(139,92,246,.2), 0 0 20px rgba(139,92,246,.5); }
+    .tl-dot.green { border-color: var(--c4); box-shadow: 0 0 0 3px rgba(34,197,94,.12), 0 0 10px rgba(34,197,94,.3); }
+    .tl-node:hover .tl-dot.green { box-shadow: 0 0 0 5px rgba(34,197,94,.2), 0 0 20px rgba(34,197,94,.5); }
+    .tl-label { text-align: center; }
+    .tl-year {
+      font-family: var(--mono); font-size: 10px; letter-spacing: .07em;
+      color: var(--c1); margin-bottom: 4px;
+    }
+    .tl-node:has(.accent) .tl-year { color: var(--c2); }
+    .tl-node:has(.violet) .tl-year { color: var(--c3); }
+    .tl-node:has(.green)  .tl-year { color: var(--c4); }
+    .tl-event { font-size: 11px; font-weight: 700; color: var(--t1); line-height: 1.3; }
+    .tl-sub   { font-size: 10px; color: var(--t3); margin-top: 2px; }
+    .tl-node:hover .tl-event { color: var(--c1); }
+    /* mobile */
+    @media (max-width: 860px) {
+      #stats { padding: 32px 24px 32px 32px; }
+      .timeline-strip {
+        display: flex; flex-direction: column; gap: 0;
+        border-left: 1px solid var(--gb);
+        margin-left: 8px;
+      }
+      .timeline-strip::before { display: none; }
+      .tl-node {
+        display: flex !important; flex-direction: row !important;
+        align-items: center !important;
+        gap: 14px; padding: 12px 0 12px 20px !important;
+        justify-content: flex-start !important;
+        position: relative;
+      }
+      /* dot sits on the left border line */
+      .tl-dot {
+        position: absolute !important;
+        left: -6px; top: 50%; transform: translateY(-50%) !important;
+        flex-shrink: 0;
+      }
+      .tl-node:hover .tl-dot,
+      .tl-node:hover .tl-dot.accent,
+      .tl-node:hover .tl-dot.violet,
+      .tl-node:hover .tl-dot.green {
+        transform: translateY(-50%) scale(1.4) !important;
+      }
+      /* reset desktop grid ordering for all nodes */
+      .tl-node:nth-child(odd)  .tl-label,
+      .tl-node:nth-child(even) .tl-label {
+        grid-row: unset; padding: 0 !important; order: 0;
+      }
+      .tl-label { text-align: left; }
+      .tl-node:nth-child(odd)::after,
+      .tl-node:nth-child(even)::before { display: none; }
+    }
 
     /* ===== SECTION SCAFFOLD ===== */
     .section {
@@ -594,11 +670,8 @@
       box-shadow: 0 0 0 1px rgba(14,165,233,.12), 0 20px 48px rgba(0,0,0,.6), inset 0 1px 0 rgba(255,255,255,.04);
     }
 
-    /* Stats — gradient accent on number */
-    .stat-n {
-      letter-spacing: -.03em;
-      filter: drop-shadow(0 0 20px rgba(14,165,233,.35));
-    }
+    /* Timeline strip node hover label brighten */
+    .tl-node:hover .tl-event { color: var(--c1); }
 
     /* Terminal — subtle inner glow */
     .terminal {
@@ -771,23 +844,80 @@
 
   <!-- ===== STATS ===== -->
   <div id="stats">
-    <div class="stats-inner">
-      <div class="stat anim">
-        <div class="stat-n"><span class="ctr" data-t="500">0</span>+</div>
-        <div class="stat-l">High-Severity Cases Resolved</div>
+    <div class="timeline-strip anim">
+
+      <div class="tl-node">
+        <div class="tl-dot violet"></div>
+        <div class="tl-label">
+          <div class="tl-year" style="color:var(--c3)">Jul 2020</div>
+          <div class="tl-event">CCNA</div>
+          <div class="tl-sub">Cisco Networking</div>
+        </div>
       </div>
-      <div class="stat anim d1">
-        <div class="stat-n"><span class="ctr" data-t="5">0</span>+</div>
-        <div class="stat-l">Years at AWS</div>
+
+      <div class="tl-node">
+        <div class="tl-dot accent"></div>
+        <div class="tl-label">
+          <div class="tl-year" style="color:var(--c2)">Dec 2020</div>
+          <div class="tl-event">Joined AWS</div>
+          <div class="tl-sub">Cloud Support Associate</div>
+        </div>
       </div>
-      <div class="stat anim d2">
-        <div class="stat-n"><span class="ctr" data-t="19">0</span></div>
-        <div class="stat-l">Professional Certifications</div>
+
+      <div class="tl-node">
+        <div class="tl-dot"></div>
+        <div class="tl-label">
+          <div class="tl-year">Mar 2021</div>
+          <div class="tl-event">AWS SAA</div>
+          <div class="tl-sub">First AWS certification</div>
+        </div>
       </div>
-      <div class="stat anim d3">
-        <div class="stat-n"><span class="ctr" data-t="1000">0</span>+</div>
-        <div class="stat-l">Eng. Hours Saved / Quarter</div>
+
+      <div class="tl-node">
+        <div class="tl-dot"></div>
+        <div class="tl-label">
+          <div class="tl-year">Aug 2023</div>
+          <div class="tl-event">SME — CloudWatch</div>
+          <div class="tl-sub">Subject matter expert</div>
+        </div>
       </div>
+
+      <div class="tl-node">
+        <div class="tl-dot accent"></div>
+        <div class="tl-label">
+          <div class="tl-year" style="color:var(--c2)">Aug 2025</div>
+          <div class="tl-event">AWS DevOps Pro</div>
+          <div class="tl-sub">Professional certification</div>
+        </div>
+      </div>
+
+      <div class="tl-node">
+        <div class="tl-dot violet"></div>
+        <div class="tl-label">
+          <div class="tl-year" style="color:var(--c3)">Mar 2026</div>
+          <div class="tl-event">CKA</div>
+          <div class="tl-sub">Kubernetes Administrator</div>
+        </div>
+      </div>
+
+      <div class="tl-node">
+        <div class="tl-dot accent"></div>
+        <div class="tl-label">
+          <div class="tl-year" style="color:var(--c2)">Mar 2026</div>
+          <div class="tl-event">Left AWS</div>
+          <div class="tl-sub">Cloud Support Engineer II</div>
+        </div>
+      </div>
+
+      <div class="tl-node">
+        <div class="tl-dot green"></div>
+        <div class="tl-label">
+          <div class="tl-year" style="color:var(--c4)">Now</div>
+          <div class="tl-event">Open to Work</div>
+          <div class="tl-sub">SRE · Platform · DevOps</div>
+        </div>
+      </div>
+
     </div>
   </div>
 
